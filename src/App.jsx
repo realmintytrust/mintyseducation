@@ -3,12 +3,14 @@ import ReactGA from 'react-ga4';
 import Search from './pages/Search';
 import lazyLoad from './lazyWrapper';
 import NotFound from './pages/NotFound';
-import { useEffect, useMemo, memo } from 'react';
+import { useCallback, useEffect, useMemo, useState, memo } from 'react';
 import { useLocation } from 'react-router-dom';
 import { OptionsProvider, useOptions } from './utils/optionsContext';
 import { initPreload } from './utils/preload';
 import { designConfig as bgDesign } from './utils/config';
 import useReg from './utils/hooks/loader/useReg';
+import FakeLogin from './pages/FakeLogin';
+import IntroGate from './pages/IntroGate';
 import './index.css';
 import 'nprogress/nprogress.css';
 
@@ -83,10 +85,20 @@ const ThemedApp = memo(() => {
 
 ThemedApp.displayName = 'ThemedApp';
 
-const App = () => (
-  <OptionsProvider>
-    <ThemedApp />
-  </OptionsProvider>
-);
+const App = () => {
+  const [stage, setStage] = useState('login'); // login -> intro -> app
+
+  const handleLoginSuccess = useCallback(() => setStage('intro'), []);
+  const handleIntroContinue = useCallback(() => setStage('app'), []);
+
+  if (stage === 'login') return <FakeLogin onSuccess={handleLoginSuccess} />;
+  if (stage === 'intro') return <IntroGate onContinue={handleIntroContinue} />;
+
+  return (
+    <OptionsProvider>
+      <ThemedApp />
+    </OptionsProvider>
+  );
+};
 
 export default App;

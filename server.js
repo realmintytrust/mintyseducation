@@ -16,6 +16,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const port = process.env.PORT || 2345;
+const basicAuthUser = process.env.BASIC_AUTH_USER;
+const basicAuthPass = process.env.BASIC_AUTH_PASS;
 const server = createServer();
 const bare = process.env.BARE !== "false" ? createBareServer("/seal/") : null;
 logging.set_level(logging.NONE);
@@ -49,6 +51,35 @@ const app = Fastify({
 
 await app.register(fastifyCookie);
 await app.register(compress, { global: true, encodings: ['gzip','deflate','br'] });
+
+if (basicAuthUser && basicAuthPass) {
+  const unauthorized = reply =>
+    reply
+      .header("WWW-Authenticate", 'Basic realm="DogeUB", charset="UTF-8"')
+      .code(401)
+      .send("Authentication required");
+
+  app.addHook("onRequest", (req, reply, done) => {
+    const header = req.headers.authorization;
+    if (!header?.startsWith("Basic ")) return unauthorized(reply);
+
+    let credentials;
+    try {
+      credentials = Buffer.from(header.slice(6), "base64").toString();
+    } catch {
+      return unauthorized(reply);
+    }
+
+    const separatorIndex = credentials.indexOf(":");
+    if (separatorIndex === -1) return unauthorized(reply);
+
+    const username = credentials.slice(0, separatorIndex);
+    const password = credentials.slice(separatorIndex + 1);
+    if (username === basicAuthUser && password === basicAuthPass) return done();
+
+    return unauthorized(reply);
+  });
+}
 
 app.register(fastifyStatic, {
   root: join(__dirname, "dist"),

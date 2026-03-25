@@ -61,6 +61,14 @@ cd dogeub
 npm i
 npm run dev
 ```
+
+### Optional HTTP Basic Auth
+
+Set `BASIC_AUTH_USER` and `BASIC_AUTH_PASS` (for example in `.env`, based on `copy.env`) to require every request to authenticate via HTTP Basic auth. When both variables are present the Fastify server will reject unauthenticated requests with a browser login prompt, keeping your local/demo deployments private until correct credentials are provided.
+
+### Fake Front-End Login
+
+If you also want the SPA itself to look like a credential-gated portal, set `VITE_FAKE_LOGIN_USER` and `VITE_FAKE_LOGIN_PASS`. Visitors land on a “Secure Access Hub” splash (background from `public/pictures/BlackCar.gif`), click Continue, and then must enter the matching username/password before DogeUB renders. Credentials default to `Test` / `Admin`; update the variables to anything you like. Swap the GIFs in `public/pictures/` to change the visuals.
 ---
 
 #### Deploying with Docker:
