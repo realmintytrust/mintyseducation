@@ -1,104 +1,22 @@
-import Routing from './Routing';
-import ReactGA from 'react-ga4';
-import Search from './pages/Search';
-import lazyLoad from './lazyWrapper';
-import NotFound from './pages/NotFound';
-import { useCallback, useEffect, useMemo, useState, memo } from 'react';
-import { useLocation } from 'react-router-dom';
-import { OptionsProvider, useOptions } from './utils/optionsContext';
-import { initPreload } from './utils/preload';
-import { designConfig as bgDesign } from './utils/config';
-import useReg from './utils/hooks/loader/useReg';
+import { useCallback, useState } from 'react';
 import FakeLogin from './pages/FakeLogin';
 import IntroGate from './pages/IntroGate';
-import './index.css';
-import 'nprogress/nprogress.css';
 
-const importHome = () => import('./pages/Home');
-const importApps = () => import('./pages/Apps');
-const importGms = () => import('./pages/Apps2');
-const importSettings = () => import('./pages/Settings');
-
-const Home = lazyLoad(importHome);
-const Apps = lazyLoad(importApps);
-const Apps2 = lazyLoad(importGms);
-const Settings = lazyLoad(importSettings);
-const Player = lazyLoad(() => import('./pages/Player'));
-
-initPreload('/materials', importApps);
-initPreload('/docs', importGms);
-initPreload('/settings', importSettings);
-initPreload('/', importHome);
-
-function useTracking() {
-  const location = useLocation();
-
-  useEffect(() => {
-    ReactGA.send({ hitType: 'pageview', page: location.pathname });
-  }, [location]);
-}
-
-const ThemedApp = memo(() => {
-  const { options } = useOptions();
-  useReg();
-  useTracking();
-
-  const pages = useMemo(
-    () => [
-      { path: '/', element: <Home /> },
-      { path: '/materials', element: <Apps /> },
-      { path: '/docs', element: <Apps2 /> },
-      { path: '/docs/r', element: <Player /> },
-      { path: '/search', element: <Search />},
-      { path: '/settings', element: <Settings /> },
-      { path: '/portal/k12/*', element: <NotFound /> },
-      { path: '/ham/*', element: <NotFound /> },
-      { path: '*', element: <NotFound /> },
-    ],
-    [],
-  );
-
-  const backgroundStyle = useMemo(() => {
-    const bgDesignConfig =
-      options.bgDesign === 'None'
-        ? 'none'
-        : (
-            bgDesign.find((d) => d.value.bgDesign === options.bgDesign) || bgDesign[0]
-          ).value.getCSS?.(options.bgDesignColor || '102, 105, 109') || 'none';
-
-    return `
-      body {
-        color: ${options.siteTextColor || '#a0b0c8'};
-        background-image: ${bgDesignConfig};
-        background-color: ${options.bgColor || '#111827'};
-      }
-    `;
-  }, [options.siteTextColor, options.bgDesign, options.bgDesignColor, options.bgColor]);
-
-  return (
-    <>
-      <Routing pages={pages} />
-      <style>{backgroundStyle}</style>
-    </>
-  );
-});
-
-ThemedApp.displayName = 'ThemedApp';
+const PROXY_URL = 'https://dashboard.aidenybarras-egirl-is.online';
 
 const App = () => {
-  const [stage, setStage] = useState('login'); // login -> intro -> app
+  const [phase, setPhase] = useState('intro');
 
-  const handleLoginSuccess = useCallback(() => setStage('intro'), []);
-  const handleIntroContinue = useCallback(() => setStage('app'), []);
+  const handleSplashBypass = useCallback(() => {
+    setPhase('login');
+  }, []);
 
-  if (stage === 'login') return <FakeLogin onSuccess={handleLoginSuccess} />;
-  if (stage === 'intro') return <IntroGate onContinue={handleIntroContinue} />;
+  const handleLoginSuccess = useCallback(() => {
+    window.location.href = PROXY_URL;
+  }, []);
 
-  return (
-    <OptionsProvider>
-      <ThemedApp />
-    </OptionsProvider>
-  );
+  if (phase === 'intro') return <IntroGate onContinue={handleSplashBypass} />;
+  return <FakeLogin onSuccess={handleLoginSuccess} />;
 };
 
 export default App;
