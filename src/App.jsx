@@ -1,8 +1,7 @@
 import { useCallback, useState } from 'react';
 import FakeLogin from './pages/FakeLogin';
 import IntroGate from './pages/IntroGate';
-
-const PROXY_URL = 'https://dashboard.aidenybarras-egirl-is.online';
+import DogeApp from './DogeApp';
 
 const App = () => {
   const [phase, setPhase] = useState('login');
@@ -12,14 +11,18 @@ const App = () => {
   }, []);
 
   const handleBypass = useCallback(() => {
-    window.location.href = PROXY_URL;
+    setPhase('app');
   }, []);
 
   if (phase === 'login') {
     return <FakeLogin onSuccess={handleLoginSuccess} />;
   }
 
-  return <IntroGate onContinue={handleBypass} />;
+  if (phase === 'gate') {
+    return <IntroGate onContinue={handleBypass} />;
+  }
+
+  return <DogeApp />;
 };
 
 export default App;
