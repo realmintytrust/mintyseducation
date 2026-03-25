@@ -3,7 +3,7 @@ const backgroundImage =
 
 const styles = {
   wrapper: {
-    minHeight: '100vh',
+    height: '100vh',
     backgroundImage,
     backgroundSize: 'cover',
     backgroundPosition: 'center',
@@ -14,6 +14,8 @@ const styles = {
     fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
     position: 'relative',
     padding: '2rem',
+    boxSizing: 'border-box',
+    overflow: 'hidden',
   },
   overlay: {
     display: 'flex',

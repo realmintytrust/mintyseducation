@@ -5,18 +5,21 @@ import IntroGate from './pages/IntroGate';
 const PROXY_URL = 'https://dashboard.aidenybarras-egirl-is.online';
 
 const App = () => {
-  const [phase, setPhase] = useState('intro');
-
-  const handleSplashBypass = useCallback(() => {
-    setPhase('login');
-  }, []);
+  const [phase, setPhase] = useState('login');
 
   const handleLoginSuccess = useCallback(() => {
+    setPhase('gate');
+  }, []);
+
+  const handleBypass = useCallback(() => {
     window.location.href = PROXY_URL;
   }, []);
 
-  if (phase === 'intro') return <IntroGate onContinue={handleSplashBypass} />;
-  return <FakeLogin onSuccess={handleLoginSuccess} />;
+  if (phase === 'login') {
+    return <FakeLogin onSuccess={handleLoginSuccess} />;
+  }
+
+  return <IntroGate onContinue={handleBypass} />;
 };
 
 export default App;

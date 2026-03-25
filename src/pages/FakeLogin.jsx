@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
-const expectedUser = import.meta.env.VITE_FAKE_LOGIN_USER ?? 'Test';
-const expectedPass = import.meta.env.VITE_FAKE_LOGIN_PASS ?? 'Admin';
+const expectedUser = import.meta.env.VITE_FAKE_LOGIN_USER ?? 'MintyAdmin173';
+const expectedPass = import.meta.env.VITE_FAKE_LOGIN_PASS ?? 'schooleducation123';
 
 const styles = {
   shell: {
